@@ -15,7 +15,7 @@ services:
       - db
     volumes:
       - .:/app
-    command: ["pytest", "tests.py"]
+    command: ["pytest", "tests.py", "--maxfail=1", "--disable-warnings", "--alluredir=allure-results"]
 
   db:
     image: postgres:13
