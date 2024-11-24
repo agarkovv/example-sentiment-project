@@ -20,12 +20,22 @@ pipeline {
             }
         }
 
+        stage('Setup Environment') {
+            steps {
+                script {
+                    sh '''
+                    python3 --version || echo "Python is missing"
+                    python3 -m ensurepip --upgrade || curl -sS https://bootstrap.pypa.io/get-pip.py | python3
+                    python3 -m pip install --upgrade pip
+                    '''
+                }
+            }
+        }
         stage('Install Dependencies') {
             steps {
-                sh '''
-                python3 -m pip install --upgrade pip
-                pip3 install -r requirements.txt
-                '''
+                script {
+                    sh 'python3 -m pip install -r requirements.txt'
+                }
             }
         }
 
