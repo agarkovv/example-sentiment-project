@@ -35,7 +35,7 @@ pipeline {
                 script {
                     echo 'Running Unit Tests inside Docker...'
                     sh '''
-                    docker run --rm -v $WORKSPACE:/workspace -w /workspace ${DOCKER_IMAGE} /bin/bash -c "
+                    docker run --rm -v $(pwd):/workspace -w /workspace ${DOCKER_IMAGE} /bin/bash -c "
                         python3 -m venv .venv && \
                         . .venv/bin/activate && \
                         pip install --upgrade pip && \
