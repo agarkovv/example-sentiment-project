@@ -35,11 +35,12 @@ pipeline {
                 script {
                     echo 'Running Unit Tests inside Docker...'
                     sh '''
-                    docker run --rm -v $(pwd):/workspace -w /workspace ${DOCKER_IMAGE} /bin/bash -c "
-                        python3 -m venv .venv && \
-                        . .venv/bin/activate && \
-                        pip install --upgrade pip && \
-                        pip install -r requirements.txt && \
+                    docker run --rm -v /var/jenkins_home/workspace/sentiment:/workspace -w /workspace python:3.11 /bin/bash -c "
+                        ls -la &&
+                        python3 -m venv .venv &&
+                        . .venv/bin/activate &&
+                        pip install --upgrade pip &&
+                        pip install -r requirements.txt &&
                         pytest --alluredir=allure-results tests/
                     "
                     '''
