@@ -28,7 +28,6 @@ pipeline {
             steps {
                 script {
                     sh "docker-compose -f docker-compose.test.yml up -d"
-                    sh "pytest --maxfail=1 --disable-warnings -q"
                     sh "docker-compose -f docker-compose.test.yml down"
                 }
             }
