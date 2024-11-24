@@ -21,6 +21,15 @@ pipeline {
             }
         }
 
+        stage('Debug') {
+            steps {
+                script {
+                    sh 'pwd'
+                    sh 'ls -la'
+                }
+            }
+        }
+
         stage('Run Unit Tests in Docker') {
             steps {
                 script {
