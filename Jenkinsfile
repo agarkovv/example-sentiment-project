@@ -2,68 +2,76 @@ pipeline {
     agent any
 
     environment {
+        DOCKER_COMPOSE = '/usr/local/bin/docker-compose'
+        SONARQUBE = 'SonarQube'
         SONARQUBE_TOKEN = credentials('sonarqube-token')
-        DOCKER_IMAGE = 'python:3.11'
+        ALLURE_RESULTS = "allure-results"
+        TEST_REPORTS = "target/test-*.xml"
     }
 
     stages {
-        stage('Clone repository') {
+        stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/agarkovv/example-sentiment-project'
+                git 'https://github.com/agarkovv/example-sentiment-project'
             }
         }
 
-        stage('Run Unit Tests in Docker Compose') {
+        stage('Build Application') {
             steps {
                 script {
-                    echo 'Running Unit Tests inside Docker Compose...'
-                    sh '''
-                    docker-compose -f docker-compose.test.yml up -d
-
-                    docker-compose exec api pytest /app/tests.py --maxfail=1 --disable-warnings -q
-
-                    docker-compose down
-                    '''
+                    sh "docker-compose -f docker-compose.yml build"
                 }
             }
         }
 
-        stage('Publish Allure Report') {
+        stage('Run Unit Tests') {
             steps {
-                allure includeProperties: false, jdk: '', results: [[path: 'allure-results']]
+                script {
+                    sh "pytest --maxfail=1 --disable-warnings -q"
+                }
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SonarQube') {
-                    sh '''
-                    sonar-scanner \
-                        -Dsonar.projectKey=sentiment-analysis \
-                        -Dsonar.sources=. \
-                        -Dsonar.host.url=$SONAR_HOST_URL \
-                        -Dsonar.login=$SONARQUBE_TOKEN
-                    '''
+                script {
+                    // Run the SonarQube analysis using Maven (or Python-based tools if applicable)
+                    withSonarQubeEnv('SonarQube') {
+                        sh 'mvn sonar:sonar' // If using Maven for analysis, otherwise adjust to Python-based tools
+                    }
                 }
             }
         }
 
-        stage('Deploy with Docker Compose') {
+        stage('Generate Allure Report') {
             steps {
-                sh './build.sh'
+                script {
+                    // Generate Allure report from pytest results
+                    sh "allure serve ${ALLURE_RESULTS}"
+                }
+            }
+        }
+
+        stage('Deploy Application') {
+            steps {
+                script {
+                    // Use Docker Compose to deploy the application
+                    sh "docker-compose -f docker-compose.yml up -d"
+                }
             }
         }
     }
 
     post {
         always {
-            cleanWs()
+            junit "**/target/test-*.xml"
+            allure()
         }
         success {
-            echo 'Pipeline completed successfully!'
+            echo 'Build, test, and deploy succeeded!'
         }
         failure {
-            echo 'Pipeline failed.'
+            echo 'Something went wrong during the pipeline.'
         }
     }
 }
