@@ -13,13 +13,13 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    sh 'docker build -t sentiment-app .'
-                }
-            }
-        }
+        // stage('Build Docker Image') {
+        //     steps {
+        //         script {
+        //             sh 'docker build -t sentiment-app .'
+        //         }
+        //     }
+        // }
 
         stage('Debug') {
             steps {
