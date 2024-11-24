@@ -13,29 +13,20 @@ pipeline {
             }
         }
 
-        // stage('Build Docker Image') {
-        //     steps {
-        //         script {
-        //             sh 'docker build -t sentiment-app .'
-        //         }
-        //     }
-        // }
-
-        stage('Run Unit Tests in Docker') {
+        stage('Run Unit Tests in Docker Compose') {
             steps {
                 script {
-                    echo 'Running Unit Tests inside Docker...'
+                    echo 'Running Unit Tests inside Docker Compose...'
                     sh '''
-                    # Step 1: Build a Docker image with the test environment
-                    docker build -t sentiment-tests -f Dockerfile.tests .
+                    docker-compose -f docker-compose.test.yml up -d
 
-                    # Step 2: Run the tests inside the container
-                    docker run --rm sentiment-tests
+                    docker-compose exec api pytest /app/tests.py --maxfail=1 --disable-warnings -q
+
+                    docker-compose down
                     '''
                 }
             }
         }
-
 
         stage('Publish Allure Report') {
             steps {
