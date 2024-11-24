@@ -10,9 +10,9 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
+        stage('Clone repository') {
             steps {
-                git 'https://github.com/agarkovv/example-sentiment-project'
+                git branch: 'main', url: 'https://github.com/agarkovv/example-sentiment-project'
             }
         }
 
