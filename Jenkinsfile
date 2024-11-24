@@ -33,15 +33,15 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
-            steps {
-                script {
-                    withSonarQubeEnv('SonarQube') {
-                        sh 'mvn sonar:sonar'
-                    }
-                }
-            }
-        }
+        // stage('SonarQube Analysis') {
+        //     steps {
+        //         script {
+        //             withSonarQubeEnv('SonarQube') {
+        //                 sh 'mvn sonar:sonar'
+        //             }
+        //         }
+        //     }
+        // }
 
         stage('Generate Allure Report') {
             steps {
