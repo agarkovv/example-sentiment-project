@@ -13,13 +13,13 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    sh 'docker build -t sentiment-app .'
-                }
-            }
-        }
+        // stage('Build Docker Image') {
+        //     steps {
+        //         script {
+        //             sh 'docker build -t sentiment-app .'
+        //         }
+        //     }
+        // }
 
         stage('Run Unit Tests in Docker') {
             steps {
@@ -30,13 +30,7 @@ pipeline {
                     docker build -t sentiment-tests -f Dockerfile.tests .
 
                     # Step 2: Run the tests inside the container
-                    docker run --rm sentiment-tests /bin/bash -c "
-                        python3 -m venv .venv &&
-                        . .venv/bin/activate &&
-                        pip install --upgrade pip &&
-                        pip install -r requirements.txt &&
-                        pytest --alluredir=allure-results tests/
-                    "
+                    docker run --rm sentiment-tests
                     '''
                 }
             }
