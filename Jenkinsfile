@@ -35,7 +35,10 @@ pipeline {
                 script {
                     echo 'Running Unit Tests inside Docker...'
                     sh '''
-                    docker run --rm -v /var/jenkins_home/workspace/sentiment:/workspace -w /workspace python:3.11 /bin/bash -c "
+                    echo "Host directory being mounted: $WORKSPACE"
+                    ls -la $WORKSPACE
+                    chmod -R a+rwx $WORKSPACE
+                    docker run --rm -v $WORKSPACE:/workspace -w /workspace python:3.11 /bin/bash -c "
                         ls -la &&
                         python3 -m venv .venv &&
                         . .venv/bin/activate &&
@@ -47,6 +50,7 @@ pipeline {
                 }
             }
         }
+
 
         stage('Publish Allure Report') {
             steps {
