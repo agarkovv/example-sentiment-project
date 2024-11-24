@@ -14,4 +14,4 @@ RUN python3 -m venv .venv
 # Activate the virtual environment and install dependencies
 RUN . .venv/bin/activate && pip install --upgrade pip && pip install -r requirements.txt
 
-CMD . .venv/bin/activate && pytest --alluredir=allure-results tests/
+CMD . .venv/bin/activate && pytest --alluredir=allure-results tests.py
