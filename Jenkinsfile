@@ -35,17 +35,13 @@ pipeline {
                 script {
                     echo 'Running Unit Tests inside Docker...'
                     sh '''
-                    docker run --rm -v $(pwd):/workspace -w /workspace python:3.11 /bin/bash -c "
-                        # Ensure all necessary files are in place
-                        cp -r /workspace /tmp/workdir &&
-                        cd /tmp/workdir &&
-                        ls -la &&
+                    # Step 1: Build a Docker image with the test environment
+                    docker build -t sentiment-tests -f Dockerfile.tests .
 
-                        # Setup virtual environment
+                    # Step 2: Run the tests inside the container
+                    docker run --rm sentiment-tests /bin/bash -c "
                         python3 -m venv .venv &&
                         . .venv/bin/activate &&
-
-                        # Install dependencies and run tests
                         pip install --upgrade pip &&
                         pip install -r requirements.txt &&
                         pytest --alluredir=allure-results tests/
@@ -54,6 +50,7 @@ pipeline {
                 }
             }
         }
+
 
         stage('Publish Allure Report') {
             steps {
