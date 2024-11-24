@@ -27,7 +27,9 @@ pipeline {
         stage('Run Unit Tests') {
             steps {
                 script {
+                    sh "docker-compose -f docker-compose.yml up -d"
                     sh "pytest --maxfail=1 --disable-warnings -q"
+                    sh "docker-compose -f docker-compose.test.yml down"
                 }
             }
         }
@@ -35,9 +37,8 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    // Run the SonarQube analysis using Maven (or Python-based tools if applicable)
                     withSonarQubeEnv('SonarQube') {
-                        sh 'mvn sonar:sonar' // If using Maven for analysis, otherwise adjust to Python-based tools
+                        sh 'mvn sonar:sonar'
                     }
                 }
             }
@@ -46,7 +47,6 @@ pipeline {
         stage('Generate Allure Report') {
             steps {
                 script {
-                    // Generate Allure report from pytest results
                     sh "allure serve ${ALLURE_RESULTS}"
                 }
             }
@@ -55,7 +55,6 @@ pipeline {
         stage('Deploy Application') {
             steps {
                 script {
-                    // Use Docker Compose to deploy the application
                     sh "docker-compose -f docker-compose.yml up -d"
                 }
             }
