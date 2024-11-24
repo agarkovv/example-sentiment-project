@@ -65,7 +65,7 @@ pipeline {
     post {
         always {
             junit '**/target/test-*.xml'
-            allure results: '**/allure-results'
+            allure results: ['**/allure-results']
         }
         success {
             echo 'Build, test, and deploy succeeded!'
@@ -74,5 +74,6 @@ pipeline {
             echo 'Something went wrong during the pipeline.'
         }
     }
+
 
 }
