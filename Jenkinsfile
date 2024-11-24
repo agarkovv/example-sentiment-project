@@ -23,7 +23,7 @@ pipeline {
         stage('Run Unit Tests') {
             steps {
                 script {
-                    sh 'pytest --alluredir=allure-results'
+                    sh 'pytest --alluredir=allure-results tests.py'
                 }
             }
         }

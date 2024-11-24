@@ -3,3 +3,5 @@ transformers
 torch
 psycopg2-binary
 pytest
+allure-pytest
+allure-python-commons
