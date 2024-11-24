@@ -2,7 +2,8 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE_TOKEN = credentials('sonarqube-token') // Токен SonarQube
+        SONARQUBE_TOKEN = credentials('sonarqube-token')
+        DOCKER_IMAGE = 'python:3.11'
     }
 
     stages {
@@ -20,29 +21,19 @@ pipeline {
             }
         }
 
-        stage('Setup Environment') {
+        stage('Run Unit Tests in Docker') {
             steps {
                 script {
+                    echo 'Running Unit Tests inside Docker...'
                     sh '''
-                    python3 --version || echo "Python is missing"
-                    python3 -m ensurepip --upgrade || curl -sS https://bootstrap.pypa.io/get-pip.py | python3
-                    python3 -m pip install --upgrade pip
+                    docker run --rm -v $WORKSPACE:/workspace -w /workspace ${DOCKER_IMAGE} /bin/bash -c "
+                        python3 -m venv .venv && \
+                        . .venv/bin/activate && \
+                        pip install --upgrade pip && \
+                        pip install -r requirements.txt && \
+                        pytest --alluredir=allure-results tests/
+                    "
                     '''
-                }
-            }
-        }
-        stage('Install Dependencies') {
-            steps {
-                script {
-                    sh 'python3 -m pip install -r requirements.txt'
-                }
-            }
-        }
-
-        stage('Run Unit Tests') {
-            steps {
-                script {
-                    sh 'pytest --alluredir=allure-results tests.py'
                 }
             }
         }
@@ -56,7 +47,13 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    sh 'sonar-scanner -Dsonar.projectKey=sentiment-analysis -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONARQUBE_TOKEN'
+                    sh '''
+                    sonar-scanner \
+                        -Dsonar.projectKey=sentiment-analysis \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=$SONAR_HOST_URL \
+                        -Dsonar.login=$SONARQUBE_TOKEN
+                    '''
                 }
             }
         }
