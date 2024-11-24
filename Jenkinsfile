@@ -35,13 +35,17 @@ pipeline {
                 script {
                     echo 'Running Unit Tests inside Docker...'
                     sh '''
-                    echo "Host directory being mounted: $WORKSPACE"
-                    ls -la $WORKSPACE
-                    chmod -R a+rwx $WORKSPACE
-                    docker run --rm -v $WORKSPACE:/workspace -w /workspace python:3.11 /bin/bash -c "
+                    docker run --rm -v $(pwd):/workspace -w /workspace python:3.11 /bin/bash -c "
+                        # Ensure all necessary files are in place
+                        cp -r /workspace /tmp/workdir &&
+                        cd /tmp/workdir &&
                         ls -la &&
+
+                        # Setup virtual environment
                         python3 -m venv .venv &&
                         . .venv/bin/activate &&
+
+                        # Install dependencies and run tests
                         pip install --upgrade pip &&
                         pip install -r requirements.txt &&
                         pytest --alluredir=allure-results tests/
@@ -50,6 +54,7 @@ pipeline {
                 }
             }
         }
+
 
 
         stage('Publish Allure Report') {
